@@ -195,6 +195,15 @@ class OpADD(BinExpr):
         yy = self.y.eval(env)
         return Num(xx.v + yy.v)
 
+    def match(self, other, env):
+        if self.x.__class__ == Id and self.y.__class__ == Num:
+            v = other.sub(self.y)
+            if v.v<0:
+                return False
+            env[self.x.i] = other.sub(self.y)
+            return True
+            
+
 @dataclass
 class OpSUB(BinExpr):
     x: Expr
