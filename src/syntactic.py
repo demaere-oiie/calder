@@ -14,10 +14,19 @@ class CState:
     s: object
     c: Token = None
 
+    def stmt(self):
+        if self.s.__class__ == CState:
+            return self.s.stmt()
+        else:
+            return self.s
+
 @dataclass
 class Statements:
     cs: CState
     ss: object = None
+
+    def stmt_list(self):
+        return [self.cs.stmt()]+(self.ss.stmt_list() if self.ss else [])
 
 @dataclass
 class Match:
@@ -52,6 +61,15 @@ class ValLav:
 @dataclass
 class IfFi:
     ss: Statements
+
+    def eval(self, env):
+        for s in self.ss.stmt_list():
+            if s.__class__ == Assert:
+                assert s.e.eval(env)==Num(1)
+
+        for s in self.ss.stmt_list():
+            if s.__class__ == Echo:
+                print(s.e.eval(env))
 
 @dataclass
 class App:
