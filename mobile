@@ -1,0 +1,11 @@
+source venv/bin/activate
+prog=${2%.calder}.calder
+case $1 in
+    "fmt")
+    cp $prog /tmp/$$
+    python3 src/calder.py --format < /tmp/$$ > $prog
+    ;;
+    "run")
+    python3 src/calder.py < $prog
+    ;;
+esac
