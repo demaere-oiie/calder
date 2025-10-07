@@ -17,6 +17,7 @@ oper = dict(Tab('''
     >=  GE
     >   GT
     <>  NE
+    ++  CAT
     ,   COMMA
     $   DOLLAR
     !   BANG
@@ -41,7 +42,7 @@ for typ,pat in Tab(r'''
 '''):
     lg.add(typ,pat)
 
-lg.ignore('\s+')
+lg.ignore('\\s+')
 lexer = lg.build()
 
 def cook(s):
