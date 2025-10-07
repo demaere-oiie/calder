@@ -22,7 +22,7 @@ idem = lambda p: p
 
 pg = ParserGenerator(list(rsvd.values()) +
                      list(oper.values()) +
-                     "CMT OPR NAM LPN RPN LBR RBR LBC RBC STR".split(),
+                     "CMT OPR NAM LPN RPN STR".split(),
     precedence=[
         ('left', ['BANG']),
         ('right', ['DOLLAR']),

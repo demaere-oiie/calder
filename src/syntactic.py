@@ -11,8 +11,8 @@ class Statement:
 
 @dataclass
 class CState:
-    s: Statement
-    c: Token
+    s: object
+    c: Token = None
 
 @dataclass
 class Statements:

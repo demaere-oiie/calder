@@ -11,7 +11,6 @@ oper = dict(Tab('''
     /   DIV
     +   ADD
     -   SUB
-    ++  CAT
     <   LT
     <=  LE
     ==  EQ
@@ -21,7 +20,6 @@ oper = dict(Tab('''
     ,   COMMA
     $   DOLLAR
     !   BANG
-    .   DOT
     :   COL
     ~:  RCOL
     ->  THEN
@@ -38,10 +36,6 @@ for typ,pat in Tab(r'''
     OPR `[_\w]+`
     LPN \(
     RPN \)
-    LBR \[
-    RBR \]
-    LBC \{
-    RBC \}
     OPR [!?$&+*-/,:;<=>|@#%^]+
     NAM [_\w]+
 '''):
