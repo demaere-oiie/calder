@@ -29,6 +29,9 @@ def main(argv):
         return 0
     env = Env(None)
     s = os.read(0,2**16).decode("utf8")
+    if "--format" in argv:
+        print(s)
+        return 0
     if "--lex" in argv:
         for t in cook(s):
             print("%s %s" % (t.gettokentype(), t.getstr()))
