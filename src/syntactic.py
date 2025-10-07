@@ -58,6 +58,55 @@ class Col:
 class ValLav:
     ss: Statements
 
+    def eval(self, env):
+        ss = self.ss.stmt_list()
+        v = None
+        
+        for s in ss:
+            if s.__class__ == Match or s.__class__ == When:
+                print("Don't use `match` or `<-` or `->` in a VAL LAV")
+                assert False
+
+        for s in ss:
+            if s.__class__ == Of:
+                print(s.e)
+                print(s.e.undef())
+                v = schedValLav(ss, s.e.undef(), [s], env)
+                break
+
+        for s in ss:
+            if s.__class__ == Assert:
+                assert s.e.eval(env)==Num(1)
+
+        for s in ss:
+            if s.__class__ == Echo:
+                print(s.e.eval(env))
+
+        return v
+
+def runValLav(xs, env):
+    print("xs",xs)
+    for x in xs[:-1]:
+        env[x.i.i] = x.d.eval(env)
+
+    return xs[-1].e.eval(env)
+
+def schedValLav(ss, us, xs, env):
+    print("us",us)
+    if not us:
+        return runValLav(xs,env)
+
+    for s in ss:
+        if s.__class__ == Col and s.i.i == us[0]:
+            return schedValLav(ss, s.d.undef()+us[1:], [s]+xs, env)
+
+    if env.get(us[0], None) != None:
+        return schedValLav(ss, us[1:], xs, env)
+
+    print(f"Undefined `{us[1:]}` in VAL LAV")
+    assert False
+    
+
 @dataclass
 class IfFi:
     ss: Statements
@@ -101,8 +150,12 @@ class App:
     fn: Expr
     args: Expr = None
 
+class BinExpr:
+    def undef(self):
+        return self.x.undef()+self.y.undef()
+
 @dataclass
-class OpCOMMA:
+class OpCOMMA(BinExpr):
     x: Expr 
     y: Expr
 
@@ -113,7 +166,7 @@ class OpCOMMA:
         return f"{self.x}, {self.y}"
 
 @dataclass
-class OpMUL:
+class OpMUL(BinExpr):
     x: Expr
     y: Expr
 
@@ -123,7 +176,7 @@ class OpMUL:
         return Num(xx.v * yy.v)
 
 @dataclass
-class OpDIV:
+class OpDIV(BinExpr):
     x: Expr
     y: Expr
 
@@ -133,7 +186,7 @@ class OpDIV:
         return Num(xx.v // yy.v)
 
 @dataclass
-class OpADD:
+class OpADD(BinExpr):
     x: Expr
     y: Expr
 
@@ -143,7 +196,7 @@ class OpADD:
         return Num(xx.v + yy.v)
 
 @dataclass
-class OpSUB:
+class OpSUB(BinExpr):
     x: Expr
     y: Expr
 
@@ -153,7 +206,7 @@ class OpSUB:
         return Num(xx.v - yy.v)
 
 @dataclass
-class OpLE:
+class OpLE(BinExpr):
     x: Expr
     y: Expr
 
@@ -163,7 +216,7 @@ class OpLE:
         return Num(1*(xx.v <= yy.v))
 
 @dataclass
-class OpLT:
+class OpLT(BinExpr):
     x: Expr
     y: Expr
 
@@ -173,7 +226,7 @@ class OpLT:
         return Num(1*(xx.v < yy.v))
 
 @dataclass
-class OpGE:
+class OpGE(BinExpr):
     x: Expr
     y: Expr
 
@@ -183,7 +236,7 @@ class OpGE:
         return Num(1*(xx.v >= yy.v))
 
 @dataclass
-class OpGT:
+class OpGT(BinExpr):
     x: Expr
     y: Expr
 
@@ -193,7 +246,7 @@ class OpGT:
         return Num(1*(xx.v > yy.v))
 
 @dataclass
-class OpEQ:
+class OpEQ(BinExpr):
     x: Expr
     y: Expr
 
@@ -203,7 +256,7 @@ class OpEQ:
         return Num(1*(xx.v == yy.v))
 
 @dataclass
-class OpNE:
+class OpNE(BinExpr):
     x: Expr
     y: Expr
 
@@ -211,6 +264,16 @@ class OpNE:
         xx = self.x.eval(env)
         yy = self.y.eval(env)
         return Num(1*(xx.v != yy.v))
+
+@dataclass
+class OpCAT(BinExpr):
+    x: Expr
+    y: Expr
+
+    def eval(self, env):
+        xx = self.x.eval(env)
+        yy = self.y.eval(env)
+        return Str(xx.s + yy.s)
 
 def mid(s):
     return s[1:-1]

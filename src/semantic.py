@@ -24,6 +24,9 @@ class Box(BaseBox):
         if not isinstance(self, type(other)): return Num(0)
         return Num(1-self.eq(other).v)
 
+    def undef(self):
+        return []
+
 class PatSyntax(Box):
     def match(self,v,env):
         return False
@@ -123,6 +126,9 @@ class Id(PatSyntax):
     def __str__(self):
         return "Id(%s)" % (self.i,)
 
+    def undef(self):
+        return [self.i]
+
 class Env(object):
     def __init__(self,prev):
         self.d = {"\0kludge":Num(0)}
@@ -176,3 +182,6 @@ class Id(PatSyntax):
 
     def __str__(self):
         return "Id(%s)" % (self.i,)
+
+    def undef(self):
+        return [self.i]

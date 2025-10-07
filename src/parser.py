@@ -2,7 +2,7 @@ from lexer import cook, oper, rsvd
 from rply import ParserGenerator
 from syntactic import Statements, CState, Match, When, Of, Echo, Assert, Col
 from syntactic import ValLav, IfFi, App, OpCOMMA, OpMUL, OpDIV, OpADD, OpSUB
-from syntactic import OpLE, OpLT, OpGE, OpGT, OpEQ, OpNE
+from syntactic import OpLE, OpLT, OpGE, OpGT, OpEQ, OpNE, OpCAT
 from syntactic import exprOpr, exprNeg, exprStr, exprId
 
 ################################################################################
@@ -76,6 +76,7 @@ Gram("""
     expr : expr GT expr     $$ OpGT 0 2
     expr : expr EQ expr     $$ OpEQ 0 2
     expr : expr NE expr     $$ OpNE 0 2
+    expr : expr CAT expr    $$ OpCAT 0 2
     expr : expr OPR expr    $$ exprOpr 0 1 2
 
     expr : LPN expr RPN     $$ idem 1
