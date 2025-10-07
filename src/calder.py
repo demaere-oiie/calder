@@ -30,7 +30,7 @@ def main(argv):
     env = Env(None)
     s = os.read(0,2**16).decode("utf8")
     if "--format" in argv:
-        print(s)
+        print(genAST(s).format(""))
         return 0
     if "--lex" in argv:
         for t in cook(s):

@@ -124,6 +124,9 @@ class Num(PatSyntax):
     def __str__(self):
         return "%d" % (self.v,)
 
+    def format(self, pre):
+        return f"{self.v}"
+
 class Id(PatSyntax):
     def __init__(self,i):
         self.i = i
@@ -150,6 +153,9 @@ class Id(PatSyntax):
 
     def undef(self):
         return [self.i]
+
+    def format(self, pre):
+        return self.i
 
 class Env(object):
     def __init__(self,prev):
@@ -180,30 +186,3 @@ class Env(object):
 
 def fresh(env):
     return Env(env)
-
-class Id(PatSyntax):
-    def __init__(self,i):
-        self.i = i
-        assert isinstance(self.i,str)
-
-    def eval(self,env):
-        r = env.get(self.i,None)
-        #if r is None:
-        #    print("NULL %s" % (self.i,))
-        return r
-
-    def match(self,v,env):
-        if self.i == "_": return True
-        elif False: #self.i in brands.d.values():
-            q = self.eval(env)
-            assert isinstance(q,Data)
-            return isinstance(v,Data) and v.b==q.b and len(v.v)==0
-        else:
-            env[self.i] = v
-            return True
-
-    def __str__(self):
-        return "Id(%s)" % (self.i,)
-
-    def undef(self):
-        return [self.i]

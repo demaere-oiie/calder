@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from random import shuffle, randint
 from rply import Token
 
 from semantic import Num, Str, Id, Env, Lambda
@@ -32,14 +33,26 @@ class Statements:
 class Match:
     e: Expr
 
+    def format(self, pre):
+        return f"match {self.e.format(pre)}"
+
 @dataclass
 class When:
     c: Expr
     a: Expr
 
+    def format(self, pre):
+        if randint(0,1)==0:
+            return f"{self.a.format(pre)} -> {self.c.format(pre)}"
+        else:
+            return f"{self.c.format(pre)} <- {self.a.format(pre)}"
+
 @dataclass
 class Of:
     e: Expr
+
+    def format(self, pre):
+        return f"of {self.e.format(pre)}"
 
 @dataclass
 class Echo:
@@ -53,6 +66,17 @@ class Assert:
 class Col:
     i: Expr
     d: Expr
+
+    def format(self, pre):
+        i = self.i
+        d = self.d
+        if d.__class__ == Lambda:
+            i = App(self.i,d.a)
+            d = d.e
+        if randint(0,1)==0:
+            return f"{i.format(pre)}: {d.format(pre)}"
+        else:
+            return f"{d.format(pre)} ~:{i.format(pre)}"
 
 def stCol(i,d):
     if i.__class__ == App:
@@ -89,6 +113,15 @@ class ValLav:
                 print(s.e.eval(env))
 
         return v
+
+    def format(self, pre):
+        ss = self.ss.stmt_list()
+        shuffle(ss)
+        return "\n".join(["",pre+"val"]+[r
+            for i,s in enumerate(ss)
+            for r in [(i>0)*(pre+"  !"),pre+"  "+s.format(pre+"    ")] if r]+
+            [pre+"lav"])
+        
 
 def runValLav(xs, env):
     #print("xs",xs)
@@ -151,6 +184,14 @@ class IfFi:
         print("an IF FI must match")
         assert False
 
+    def format(self, pre):
+        ss = self.ss.stmt_list()
+        shuffle(ss)
+        return "\n".join(["",pre+"if"]+[r
+            for i,s in enumerate(ss)
+            for r in [(i>0)*(pre+"  !"),pre+"  "+s.format(pre+"    ")] if r]+
+            [pre+"fi"])
+
 @dataclass
 class App:
     fn: Expr
@@ -163,6 +204,15 @@ class App:
 
     def undef(self):
         return [self.fn.i]
+
+    def format(self, pre):
+        f = self.fn
+        a = self.args
+        aa = a.format(pre)
+        if aa[0]=="(":
+            return f"{f.format(pre)}{aa}"
+        else:
+            return f"{f.format(pre)}({a.format(pre)})"
 
 class BinExpr:
     def undef(self):
@@ -185,6 +235,9 @@ class OpCOMMA(BinExpr):
             self.y.match(other.y,env)):
             return True
 
+    def format(self, pre):
+        return f"({self.x.format(pre)}, {self.y.format(pre)})"
+
 @dataclass
 class OpMUL(BinExpr):
     x: Expr
@@ -194,6 +247,9 @@ class OpMUL(BinExpr):
         xx = self.x.eval(env)
         yy = self.y.eval(env)
         return Num(xx.v * yy.v)
+
+    def format(self, pre):
+        return f"{self.x.format(pre)}*{self.y.format(pre)}"
 
 @dataclass
 class OpDIV(BinExpr):
@@ -223,6 +279,8 @@ class OpADD(BinExpr):
             env[self.x.i] = other.sub(self.y)
             return True
             
+    def format(self, pre):
+        return f"{self.x.format(pre)}+{self.y.format(pre)}"
 
 @dataclass
 class OpSUB(BinExpr):
@@ -233,6 +291,9 @@ class OpSUB(BinExpr):
         xx = self.x.eval(env)
         yy = self.y.eval(env)
         return Num(xx.v - yy.v)
+
+    def format(self, pre):
+        return f"{self.x.format(pre)}-{self.y.format(pre)}"
 
 @dataclass
 class OpLE(BinExpr):
