@@ -3,7 +3,7 @@ from rply import ParserGenerator
 from syntactic import Statements, CState, Match, When, Of, Echo, Assert, Col
 from syntactic import ValLav, IfFi, App, OpCOMMA, OpMUL, OpDIV, OpADD, OpSUB
 from syntactic import OpLE, OpLT, OpGE, OpGT, OpEQ, OpNE, OpCAT
-from syntactic import exprOpr, exprNeg, exprStr, exprId
+from syntactic import exprOpr, exprNeg, exprStr, exprId, stCol
 
 ################################################################################
 def gram(s):
@@ -53,8 +53,8 @@ Gram("""
     statement : OF expr         $$ Of 1
     statement : ECHO expr       $$ Echo 1
     statement : ASSERT expr     $$ Assert 1
-    statement : expr COL expr   $$ Col 0 2
-    statement : expr RCOL expr  $$ Col 2 0
+    statement : expr COL expr   $$ stCol 0 2
+    statement : expr RCOL expr  $$ stCol 2 0
 
     ### Simple expressions ###################################
 

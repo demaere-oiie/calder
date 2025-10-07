@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from rply import Token
 
-from semantic import Num, Str, Id, Env
+from semantic import Num, Str, Id, Env, Lambda
 
 class Expr:
     pass
@@ -54,6 +54,12 @@ class Col:
     i: Expr
     d: Expr
 
+def stCol(i,d):
+    if i.__class__ == App:
+        return stCol(i.fn, Lambda(i.args,d))
+
+    return Col(i,d)
+
 @dataclass
 class ValLav:
     ss: Statements
@@ -69,8 +75,8 @@ class ValLav:
 
         for s in ss:
             if s.__class__ == Of:
-                print(s.e)
-                print(s.e.undef())
+                #print(s.e)
+                #print(s.e.undef())
                 v = schedValLav(ss, s.e.undef(), [s], env)
                 break
 
@@ -85,14 +91,14 @@ class ValLav:
         return v
 
 def runValLav(xs, env):
-    print("xs",xs)
+    #print("xs",xs)
     for x in xs[:-1]:
         env[x.i.i] = x.d.eval(env)
 
     return xs[-1].e.eval(env)
 
 def schedValLav(ss, us, xs, env):
-    print("us",us)
+    #print("us",us)
     if not us:
         return runValLav(xs,env)
 
@@ -149,6 +155,14 @@ class IfFi:
 class App:
     fn: Expr
     args: Expr = None
+
+    def eval(self, env):
+        ff = self.fn.eval(env)
+        aa = self.args.eval(env)
+        return ff.apply(aa, env)
+
+    def undef(self):
+        return [self.fn.i]
 
 class BinExpr:
     def undef(self):

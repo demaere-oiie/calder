@@ -31,6 +31,28 @@ class PatSyntax(Box):
     def match(self,v,env):
         return False
 
+class Clo(Box):
+    def __init__(self,c,e):
+        self.c = c
+        self.e = e
+
+    def apply(self,other,env):
+        frm = self.c.a
+        env = fresh(self.e)
+        if frm.match(other,env): return self.c.e.eval(env)
+        else:                    return None
+
+    def __str__(self):
+        return "{Clo}"
+
+class Lambda(Box):
+    def __init__(self,a,e):
+        self.a = a
+        self.e = e
+
+    def eval(self,env):
+        return Clo(self,fresh(env))
+
 class Str(PatSyntax):
     def __init__(self,s):
         self.s = s
@@ -115,7 +137,7 @@ class Id(PatSyntax):
 
     def match(self,v,env):
         if self.i == "_": return True
-        elif self.i in brands.d.values():
+        elif False: #self.i in brands.d.values():
             q = self.eval(env)
             assert isinstance(q,Data)
             return isinstance(v,Data) and v.b==q.b and len(v.v)==0
@@ -172,7 +194,7 @@ class Id(PatSyntax):
 
     def match(self,v,env):
         if self.i == "_": return True
-        elif self.i in brands.d.values():
+        elif False: #self.i in brands.d.values():
             q = self.eval(env)
             assert isinstance(q,Data)
             return isinstance(v,Data) and v.b==q.b and len(v.v)==0
