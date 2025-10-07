@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from rply import Token
 
-from semantic import Num, Str, Id
+from semantic import Num, Str, Id, Env
 
 class Expr:
     pass
@@ -34,8 +34,8 @@ class Match:
 
 @dataclass
 class When:
-    a: Expr
     c: Expr
+    a: Expr
 
 @dataclass
 class Of:
@@ -63,13 +63,38 @@ class IfFi:
     ss: Statements
 
     def eval(self, env):
-        for s in self.ss.stmt_list():
+        ss = self.ss.stmt_list()
+        m = None
+
+        for s in ss:
             if s.__class__ == Assert:
                 assert s.e.eval(env)==Num(1)
 
-        for s in self.ss.stmt_list():
+        for s in ss:
             if s.__class__ == Echo:
                 print(s.e.eval(env))
+
+        for s in ss:
+            if s.__class__ == Col or s.__class__ == Of:
+                print("Don't use `:` or `of` in an IF FI")
+                assert False
+
+        for s in ss:
+            if s.__class__ == Match:
+                m = s.e.eval(env)
+                break
+        else:
+            print("an IF FI must have a `match`")
+            assert False
+
+        for s in ss:
+            if s.__class__ == When:
+                env1 = Env(env)
+                if s.a.match(m,env1):
+                    return s.c.eval(env1)
+
+        print("an IF FI must match")
+        assert False
 
 @dataclass
 class App:
