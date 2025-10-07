@@ -6,7 +6,8 @@ import os
 
 def Eval(src,env):
     try:
-        genAST(src).eval(env)
+        v = genAST(src).eval(env)
+        print(v)
     except ParsingError as err:
         print(err)
         return 1

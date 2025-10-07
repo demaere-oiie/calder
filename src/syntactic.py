@@ -63,55 +63,111 @@ class OpCOMMA:
     x: Expr 
     y: Expr
 
+    def eval(self, env):
+        return OpCOMMA(self.x.eval(env), self.y.eval(env))
+
+    def __str__(self):
+        return f"{self.x}, {self.y}"
+
 @dataclass
 class OpMUL:
     x: Expr
     y: Expr
+
+    def eval(self, env):
+        xx = self.x.eval(env)
+        yy = self.y.eval(env)
+        return Num(xx.v * yy.v)
 
 @dataclass
 class OpDIV:
     x: Expr
     y: Expr
 
+    def eval(self, env):
+        xx = self.x.eval(env)
+        yy = self.y.eval(env)
+        return Num(xx.v // yy.v)
+
 @dataclass
 class OpADD:
     x: Expr
     y: Expr
+
+    def eval(self, env):
+        xx = self.x.eval(env)
+        yy = self.y.eval(env)
+        return Num(xx.v + yy.v)
 
 @dataclass
 class OpSUB:
     x: Expr
     y: Expr
 
+    def eval(self, env):
+        xx = self.x.eval(env)
+        yy = self.y.eval(env)
+        return Num(xx.v - yy.v)
+
 @dataclass
 class OpLE:
     x: Expr
     y: Expr
+
+    def eval(self, env):
+        xx = self.x.eval(env)
+        yy = self.y.eval(env)
+        return Num(1*(xx.v <= yy.v))
 
 @dataclass
 class OpLT:
     x: Expr
     y: Expr
 
+    def eval(self, env):
+        xx = self.x.eval(env)
+        yy = self.y.eval(env)
+        return Num(1*(xx.v < yy.v))
+
 @dataclass
 class OpGE:
     x: Expr
     y: Expr
+
+    def eval(self, env):
+        xx = self.x.eval(env)
+        yy = self.y.eval(env)
+        return Num(1*(xx.v >= yy.v))
 
 @dataclass
 class OpGT:
     x: Expr
     y: Expr
 
+    def eval(self, env):
+        xx = self.x.eval(env)
+        yy = self.y.eval(env)
+        return Num(1*(xx.v > yy.v))
+
 @dataclass
 class OpEQ:
     x: Expr
     y: Expr
 
+    def eval(self, env):
+        xx = self.x.eval(env)
+        yy = self.y.eval(env)
+        return Num(1*(xx.v == yy.v))
+
 @dataclass
 class OpNE:
     x: Expr
     y: Expr
+
+    def eval(self, env):
+        xx = self.x.eval(env)
+        yy = self.y.eval(env)
+        return Num(1*(xx.v != yy.v))
 
 def mid(s):
     return s[1:-1]
