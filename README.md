@@ -1,1 +1,3 @@
-# CⒶlder
+# Calder
+
+Calder has no semicolons. Calder has no statemment ordering. Use `!` to separate statements, because `!` is symmetric, and hence implies commutativity, while `;` is not and does not.
