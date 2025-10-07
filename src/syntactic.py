@@ -165,6 +165,12 @@ class OpCOMMA(BinExpr):
     def __str__(self):
         return f"{self.x}, {self.y}"
 
+    def match(self, other, env):
+        if (other.__class__==OpCOMMA and
+            self.x.match(other.x,env) and
+            self.y.match(other.y,env)):
+            return True
+
 @dataclass
 class OpMUL(BinExpr):
     x: Expr
