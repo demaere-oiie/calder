@@ -23,6 +23,15 @@ Usage: %s [--help] [--lex] [--test]
 Until better implemented, takes input from STDIN
 """ % n
 
+dotfile = """
+digraph {{
+graph [ dpi = 100, fontname="Sans"];
+node [fontname = "Sans"];
+edge [fontname = "Sans"];
+node [style=filled, fillcolor="#c0ffff"]
+{}
+}}"""
+
 def main(argv):
     if "--help" in argv:
         print(usage(argv[0]))
@@ -31,6 +40,9 @@ def main(argv):
     s = os.read(0,2**16).decode("utf8")
     if "--format" in argv:
         print(genAST(s).format(""))
+        return 0
+    if "--dot" in argv:
+        print(dotfile.format(genAST(s).toDOT("toplevel")))
         return 0
     if "--lex" in argv:
         for t in cook(s):

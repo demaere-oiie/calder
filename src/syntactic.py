@@ -29,12 +29,18 @@ class Statements:
     def stmt_list(self):
         return [self.cs.stmt()]+(self.ss.stmt_list() if self.ss else [])
 
+def node(self, label):
+    return f"n{id(self)} [label=\"{label}\"]"
+
 @dataclass
 class Match:
     e: Expr
 
     def format(self, pre):
         return f"match {self.e.format(pre)}"
+
+    def toDOT(self, ctx):
+        return node(self, self.format(''))
 
 @dataclass
 class When:
@@ -47,12 +53,18 @@ class When:
         else:
             return f"{self.c.format(pre)} <- {self.a.format(pre)}"
 
+    def toDOT(self, ctx):
+        return node(self, f"{self.a.format('')} -> {self.c.format('')}")
+
 @dataclass
 class Of:
     e: Expr
 
     def format(self, pre):
         return f"of {self.e.format(pre)}"
+
+    def toDOT(self, ctx):
+        return node(self, self.format(''))
 
 @dataclass
 class Echo:
@@ -77,6 +89,16 @@ class Col:
             return f"{i.format(pre)}: {d.format(pre)}"
         else:
             return f"{d.format(pre)} ~:{i.format(pre)}"
+
+    def toDOT(self, ctx):
+        i = self.i
+        d = self.d
+        if d.__class__ == Lambda:
+            i = App(self.i,d.a)
+            d = d.e
+        
+        return "\n".join([i.toDOT(ctx),d.toDOT(ctx),node(self, ":")]+[
+            f"n{id(self)}->n{id(z)}" for z in [i,d]])
 
 def stCol(i,d):
     if i.__class__ == App:
@@ -121,6 +143,12 @@ class ValLav:
             for i,s in enumerate(ss)
             for r in [(i>0)*(pre+"  !"),pre+"  "+s.format(pre+"    ")] if r]+
             [pre+"lav"])
+
+    def toDOT(self, ctx):
+        ss = self.ss.stmt_list()
+        return "\n".join([s.toDOT(ctx) for s in ss] +
+                 [f"n{id(self)}->n{id(s)};" for s in ss] +
+                 [node(self, "val/lav")])
         
 
 def runValLav(xs, env):
@@ -192,6 +220,12 @@ class IfFi:
             for r in [(i>0)*(pre+"  !"),pre+"  "+s.format(pre+"    ")] if r]+
             [pre+"fi"])
 
+    def toDOT(self, ctx):
+        ss = self.ss.stmt_list()
+        return "\n".join([s.toDOT(ctx) for s in ss] +
+                 [f"n{id(self)}->n{id(s)};" for s in ss] +
+                 [node(self, "if/fi")])
+
 @dataclass
 class App:
     fn: Expr
@@ -214,9 +248,15 @@ class App:
         else:
             return f"{f.format(pre)}({a.format(pre)})"
 
+    def toDOT(self, ctx):
+        return node(self, self.format(''))
+
 class BinExpr:
     def undef(self):
         return self.x.undef()+self.y.undef()
+
+    def toDOT(self, ctx):
+        return self.format('')
 
 @dataclass
 class OpCOMMA(BinExpr):
