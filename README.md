@@ -64,5 +64,11 @@ val
 lav
 ```
 
+## mobile
 
+- `mobile run prog` to run `prog.calder`
+
+- `mobile fmt prog` will rewrite `prog.calder` in an arbitrary order
+
+- `mobile dot prog` will produce `prog.dot` suitable for input to [Graphviz](https://graphviz.org)
 
