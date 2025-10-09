@@ -5,6 +5,9 @@ case $1 in
     cp $prog /tmp/$$
     python3 src/calder.py --format < /tmp/$$ > $prog
     ;;
+    "dot")
+    python3 src/calder.py --dot < $prog > ${prog%.calder}.dot
+    ;;
     "run")
     python3 src/calder.py < $prog
     ;;
