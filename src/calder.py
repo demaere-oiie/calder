@@ -44,6 +44,9 @@ def main(argv):
     if "--dot" in argv:
         print(dotfile.format(genAST(s).toDOT("toplevel")))
         return 0
+    if "--json" in argv:
+        print(genAST(s).toJSON("toplevel"))
+        return 0
     if "--lex" in argv:
         for t in cook(s):
             print("%s %s" % (t.gettokentype(), t.getstr()))

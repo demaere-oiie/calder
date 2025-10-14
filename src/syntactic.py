@@ -42,6 +42,9 @@ class Match:
     def toDOT(self, ctx):
         return node(self, self.format(''))
 
+    def toJSON(self, ctx):
+        return f"{{\"node\":\"{self.format('')}\"}}"
+
 @dataclass
 class When:
     c: Expr
@@ -56,6 +59,10 @@ class When:
     def toDOT(self, ctx):
         return node(self, f"{self.a.format('')} -> {self.c.format('')}")
 
+    def toJSON(self, ctx):
+        return(f"{{\"node\":\"{self.a.format('')} -> {self.c.format('')}\"," +
+               f"\"flip\":\"{self.c.format('')} <- {self.a.format('')}\"}}")
+
 @dataclass
 class Of:
     e: Expr
@@ -65,6 +72,9 @@ class Of:
 
     def toDOT(self, ctx):
         return node(self, self.format(''))
+
+    def toJSON(self, ctx):
+        return f"{{\"node\":\"{self.format('')}\"}}"
 
 @dataclass
 class Echo:
@@ -96,9 +106,20 @@ class Col:
         if d.__class__ == Lambda:
             i = App(self.i,d.a)
             d = d.e
-        
+
         return "\n".join([i.toDOT(ctx),d.toDOT(ctx),node(self, ":")]+[
             f"n{id(self)}->n{id(z)}" for z in [i,d]])
+
+    def toJSON(self, ctx):
+        i = self.i
+        d = self.d
+        if d.__class__ == Lambda:
+            i = App(self.i,d.a)
+            d = d.e
+
+        return ",".join([f"{{\"colon\":1",
+                         f"\"i\":{i.toJSON(ctx)}",
+                         f"\"d\":{d.toJSON(ctx)}}}"])
 
 def stCol(i,d):
     if i.__class__ == App:
@@ -113,7 +134,7 @@ class ValLav:
     def eval(self, env):
         ss = self.ss.stmt_list()
         v = None
-        
+
         for s in ss:
             if s.__class__ == Match or s.__class__ == When:
                 print("Don't use `match` or `<-` or `->` in a VAL LAV")
@@ -149,7 +170,12 @@ class ValLav:
         return "\n".join([s.toDOT(ctx) for s in ss] +
                  [f"n{id(self)}->n{id(s)};" for s in ss] +
                  [node(self, "val/lav")])
-        
+
+    def toJSON(self, ctx):
+        ss = self.ss.stmt_list()
+        return f"{{\"node\":\"val...lav\",\"subs\":[{",".join([
+                  s.toJSON(ctx) for s in ss])}]}}"
+
 
 def runValLav(xs, env):
     #print("xs",xs)
@@ -172,7 +198,7 @@ def schedValLav(ss, us, xs, env):
 
     print(f"Undefined `{us[1:]}` in VAL LAV")
     assert False
-    
+
 
 @dataclass
 class IfFi:
@@ -226,6 +252,12 @@ class IfFi:
                  [f"n{id(self)}->n{id(s)};" for s in ss] +
                  [node(self, "if/fi")])
 
+    def toJSON(self, ctx):
+        ss = self.ss.stmt_list()
+        return f"{{\"node\":\"if...fi\",\"subs\":[{",".join([
+                  s.toJSON(ctx) for s in ss])}]}}"
+
+
 @dataclass
 class App:
     fn: Expr
@@ -251,11 +283,17 @@ class App:
     def toDOT(self, ctx):
         return node(self, self.format(''))
 
+    def toJSON(self, ctx):
+        return f"{{\"node\":\"{self.format('')}\"}}"
+
 class BinExpr:
     def undef(self):
         return self.x.undef()+self.y.undef()
 
     def toDOT(self, ctx):
+        return self.format('')
+
+    def toJSON(self, ctx):
         return self.format('')
 
 @dataclass
@@ -318,7 +356,7 @@ class OpADD(BinExpr):
                 return False
             env[self.x.i] = other.sub(self.y)
             return True
-            
+
     def format(self, pre):
         return f"{self.x.format(pre)}+{self.y.format(pre)}"
 
