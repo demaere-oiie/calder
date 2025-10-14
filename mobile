@@ -8,6 +8,9 @@ case $1 in
     "dot")
     python3 src/calder.py --dot < $prog > ${prog%.calder}.dot
     ;;
+    "json")
+    python3 src/calder.py --json < $prog > ${prog%.calder}.json
+    ;;
     "run")
     python3 src/calder.py < $prog
     ;;
